@@ -1,0 +1,150 @@
+Goal 1️⃣ — Practice backend + SQL in a realistic way (main goal)
+
+This is the biggest one.
+
+You want to:
+
+design tables that actually make sense
+
+use SQL for real operations, not toy queries
+
+practice updates, joins, constraints, and state changes
+
+Your Kanban model forces you to think about:
+
+boards
+
+columns
+
+tasks
+
+ordering
+
+status changes
+
+That’s much better SQL practice than a basic todo list.
+
+If you finish this project and feel:
+
+“I understand how data flows through a real app”
+
+You’ve succeeded.
+
+Goal 2️⃣ — Learn where state should live (frontend vs backend)
+
+This project is deliberately exposing you to questions like:
+
+should this be frontend state?
+
+should this be backend state?
+
+what is the source of truth?
+
+Examples you’ve already hit:
+
+completed / is_completed
+
+one active item vs many
+
+syncing UI with DB state
+
+That’s not accidental — that is the lesson.
+
+By the end, you should be comfortable saying:
+
+“This belongs in the database, not in React state.”
+
+Goal 3️⃣ — Get comfortable with Node + Express + APIs
+
+You’re practicing:
+
+REST endpoints
+
+HTTP methods (GET, POST, PATCH, DELETE)
+
+request bodies vs params
+
+error handling
+
+debugging 500s
+
+env vars
+
+DB connections
+
+You’re not just “using Node” — you’re debugging Node, which is what actually counts.
+
+Goal 4️⃣ — Learn Git through real mistakes (quiet but important)
+
+This project has already taught you:
+
+commits are snapshots
+
+restore vs reset
+
+why branches matter
+
+how to recover from mistakes
+
+how to stage intentionally
+
+That’s more valuable than a perfect commit history.
+
+You’re not trying to be a Git wizard — just calm and confident.
+
+Goal 5️⃣ — Practice clean project structure (not perfection)
+
+This is why you asked about:
+
+headings
+
+folders
+
+components
+
+context
+
+The goal is clarity, not elegance.
+
+If someone else opened the repo and could say:
+
+“I know where things go”
+
+That’s enough.
+
+What you are NOT aiming for (important)
+
+You are not aiming to:
+
+support multiple users
+
+add drag-and-drop polish
+
+optimise performance
+
+over-engineer state management
+
+build a production SaaS
+
+Those are future problems.
+
+What “done” looks like (very important)
+
+This project is done when you can:
+
+create boards, columns, tasks
+
+move a task between columns
+
+persist that change in the database
+
+reload the page and see correct state
+
+explain your schema and endpoints out loud
+
+Not when it’s perfect.
+Not when it’s pretty.
+
+The one-sentence goal (remember this)
+
+Build a Kanban-style app to practice backend data modelling, SQL, and frontend–backend boundaries — not to build Trello.
