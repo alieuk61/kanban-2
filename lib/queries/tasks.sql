@@ -1,0 +1,17 @@
+-- INSERT INTO tasks (column_id, title, description, position)
+-- select
+-- c.id,
+-- t.title,
+-- t.description,
+-- t.position
+-- FROM columns c
+-- JOIN (
+--     VALUES
+--     ('Backlog', 'go shopping', 'need to grab vegetables and milk', 1),
+--     ('In Progress', 'go to park', 'need to take son to park', 1),
+--     ('Done', 'go cinema', 'take girl out to watch spiderman', 1)
+-- ) AS t(col_name, title, description, position)
+-- ON t.col_name = c.name 
+-- WHERE c.board_id = 1
+-- RETURNING id, column_id, title;
+
