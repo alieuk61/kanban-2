@@ -12,6 +12,8 @@ type AppContextValue = {
     deleteBoard: (id: number) => Promise<void>;
     createColumn: (boardId: number, newColumn: Column) => Promise<void>;
     deleteColumn: (boardId: number, columnId: number) => Promise<void>;
+    addColumn: (boardId: number, newColumn: Column) => Promise<void>;
+    getColumn: (boardId: number, columnId: number) => Promise<void>;
 };
 
 export const AppContext = createContext<AppContextValue | undefined>(undefined);
@@ -60,12 +62,21 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
         await axios.delete(`/api/boards/${boardId}/columns/${columnId}`)
     }
 
+    const addColumn = async(boardId: number, newColumn: Column): Promise<void> => {
+        await axios.post(`/api/boards/${boardId}/columns`, newColumn)
+    }
+
+    const getColumn = async(boardId: number, columnId: number): Promise<void> => {
+        const requestedColumn = await axios.get(`/api/boards/${boardId}/columns/${columnId}`)
+    }
+
     return(
         <AppContext.Provider value={{
             board, setBoard,
             getAllBoards, deleteBoard,
             getBoard, createBoard,
-            createColumn, deleteColumn
+            createColumn, deleteColumn,
+            getColumn, addColumn
 
         }}>
             {children}
