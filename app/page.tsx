@@ -1,12 +1,18 @@
 import Image from "next/image";
 import Navbar from "@/components/layout/navbar";
+import { useEffect } from "react";
 
 export default function Home() {
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-[#828FA3]">
+    <main className="flex min-h-screen h-screen bg-[#828FA3]">
       <Navbar />
-      <h1>lets begin</h1>
-    </div>
+      <div>
+        <div>
+          
+        </div>
+      </div>
+    </main>
           
   );
 }
