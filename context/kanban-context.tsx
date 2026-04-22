@@ -104,7 +104,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     }
 
     const getColumns = async (boardId: number): Promise<void> => {
-        const columns = await axios.get(`/api/boards/${boardId}`);
+        const columns = await axios.get(`/api/boards/${boardId}/columns`);
         console.log(columns.data);
         setColumn(columns.data);
     }

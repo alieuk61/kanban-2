@@ -1,21 +1,22 @@
 "use client";
 import Image from "next/image";
-import Navbar from "@/components/layout/navbar";
+import Header from "@/components/layout/header";
 import { useContext, useEffect } from "react";
 import { useAppContext } from "@/context/kanban-context";
 
 export default function Home() {
-  const { getAllBoards } = useAppContext();
+  const { getBoard, getAllBoards, chosenBoardId } = useAppContext();
 
   useEffect(() => {
-    getAllBoards();
-  }, [getAllBoards]);
+    getAllBoards()
+    getBoard(1)
+  }, [])
 
   return (
-    <main className="flex min-h-screen h-screen bg-[#828FA3]">
-      <Navbar />
+    <main className="flex min-h-screen h-screen bg-[#828FA3] flex-col">
+      <Header />
       <div>
-        <div>
+        <div className="bg-white w-full h-screen">
           
         </div>
       </div>
