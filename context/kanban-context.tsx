@@ -6,14 +6,14 @@ import { Subtask, Task, Column, Board } from '@/types/types';
 import axios from 'axios';
 
 type AppContextValue = {
-    board: Board[] | null;
-    setBoard: React.Dispatch<React.SetStateAction<Board[] | null>>;
+    board: Board | null;
+    setBoard: React.Dispatch<React.SetStateAction<Board | null>>;
     AllBoards: Board[] | null;
     setAllBoards: React.Dispatch<React.SetStateAction<Board[] | null>>;
     chosenBoardId: string | null;
     setChosenBoardId: React.Dispatch<React.SetStateAction<string | null>>;
-    column: Board[] | null;
-    setColumn: React.Dispatch<React.SetStateAction<Board[] | null>>;
+    columns: Column[] | null;
+    setColumns: React.Dispatch<React.SetStateAction<Column[] | null>>;
     getAllBoards: () => Promise<void>;
     getBoard: (boardId: number) => Promise<void>;
     createBoard: (newboard: Board) => Promise<void>
@@ -38,10 +38,10 @@ export function useAppContext() {
 }
 
 export const AppProvider = ({ children }: { children: ReactNode }) => {
-    const [board, setBoard] = useState<Board[] | null>(null);
+    const [board, setBoard] = useState<Board | null>(null);
     const [AllBoards, setAllBoards] = useState<Board[] | null>(null);
     const [chosenBoardId, setChosenBoardId] = useState<string | null>(null);
-    const [column, setColumn] = useState<Board[] | null>(null)
+    const [columns, setColumns] = useState<Column[] | null>(null)
 
     // boards
     const getAllBoards = async() : Promise<void> => {
@@ -63,6 +63,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
             console.log('here is the chosen board: ', result.data)
             setBoard(result.data);
             setChosenBoardId(result.data.id);
+            console.log('board Id: ', chosenBoardId)
         } catch (error) {
             console.log(error)
         }
@@ -100,19 +101,19 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     const getColumn = async(boardId: number, columnId: number): Promise<void> => {
         const requestedColumn = await axios.get(`/api/boards/${boardId}/columns/${columnId}`);
         console.log(requestedColumn);
-        setColumn(requestedColumn.data);
+        setColumns(requestedColumn.data);
     }
 
     const getColumns = async (boardId: number): Promise<void> => {
         const columns = await axios.get(`/api/boards/${boardId}/columns`);
-        console.log(columns.data);
-        setColumn(columns.data);
+        console.log("columns: ", columns.data);
+        setColumns(columns.data);
     }
 
     return(
         <AppContext.Provider value={{
             board, setBoard,
-            column, setColumn,
+            columns, setColumns,
             getColumns,
             chosenBoardId, setChosenBoardId,
             AllBoards, setAllBoards,
