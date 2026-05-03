@@ -1,10 +1,11 @@
+import { Task } from "@/types/types";
+import { useState } from "react";
 
-
-export default function TaskCard({ title, subtasks }: { title: string; subtasks: string[] }) {
+export default function TaskCard({ task }: { task: Task[] }) {
     return(
-        <div>
-            <h2>{title}</h2>
-            <p>completed subtasks out of{subtasks.length}</p>
+        <div className="bg-white p-2 rounded-lg flex flex-col cursor-pointer ">
+            <h2>{task.title}</h2>
+            <p>completed subtasks out of subtask length</p>
         </div>
     )
 }
