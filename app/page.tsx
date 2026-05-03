@@ -19,7 +19,7 @@ export default function Home() {
     <main className="flex min-h-screen h-screen bg-[#828FA3] flex-col">
       <Header />
       <div>
-        <div className="bg-[#E4EBFA] w-full h-screen flex">
+        <div className="bg-[#E4EBFA] w-full h-screen flex ">
           
           {columns && columns.length > 0 ? (
             columns.map((col) => <ColumnCard key={col.id} column={col} />)
