@@ -23,6 +23,8 @@ type AppContextValue = {
     addColumn: (boardId: number, newColumn: Column) => Promise<void>;
     getColumn: (boardId: number, columnId: number) => Promise<void>;
     getColumns: (boardId: number) => Promise<void>;
+    getTasksByColumn: (boardId: number, columnId: number) => Promise<Task[]>;
+    getSubtasksByTask: (boardId: number, columnId: number, taskId: number) => Promise<Subtask[]>;
 };
 
 export const AppContext = createContext<AppContextValue | undefined>(undefined);
@@ -41,7 +43,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     const [board, setBoard] = useState<Board | null>(null);
     const [AllBoards, setAllBoards] = useState<Board[] | null>(null);
     const [chosenBoardId, setChosenBoardId] = useState<string | null>(null);
-    const [columns, setColumns] = useState<Column[] | null>(null)
+    const [columns, setColumns] = useState<Column[] | null>([]);
 
     // boards
     const getAllBoards = async() : Promise<void> => {
@@ -110,17 +112,39 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
         setColumns(columns.data);
     }
 
+    const getTasksByColumn = async (boardId: number, columnId: number): Promise<Task[]> => {
+        try {
+            const response = await axios.get(`/api/boards/${boardId}/columns/${columnId}/tasks`);
+            return response.data;
+        } catch (error) {
+            console.log(error);
+            return [];
+        }
+    };
+
+    const getSubtasksByTask = async (boardId: number, columnId: number, taskId: number): Promise<Subtask[]> => {
+        try {
+            const response = await axios.get(`/api/boards/${boardId}/columns/${columnId}/tasks/${taskId}`);
+            return response.data;
+        } catch (error) {
+            console.log(error);
+            return [];
+        }
+    };
+
     return(
         <AppContext.Provider value={{
             board, setBoard,
             columns, setColumns,
+            getTasksByColumn,
             getColumns,
             chosenBoardId, setChosenBoardId,
             AllBoards, setAllBoards,
             getAllBoards, deleteBoard,
             getBoard, createBoard,
             createColumn, deleteColumn,
-            getColumn, addColumn
+            getColumn, addColumn,
+            getSubtasksByTask
 
         }}>
             {children}
