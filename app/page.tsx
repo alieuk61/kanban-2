@@ -9,9 +9,10 @@ import { useAppContext } from "@/context/kanban-context";
 import ColumnCard from "@/components/cards/column-card";
 import { AddColumnButton } from "@/components/buttons/columns/add-column";
 import EditTaskModal from "@/components/modals/task/edit-task-modal";
+import DeleteTaskModal from "@/components/modals/task/delete-task-modal";
 
 export default function Home() {
-  const { getBoard, getAllBoards, chosenBoardId, columns, getColumns, updateTask } = useAppContext();
+  const { getBoard, getAllBoards, chosenBoardId, columns, getColumns, updateTask, deleteTask } = useAppContext();
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [selectedColumnId, setSelectedColumnId] = useState<number | null>(null);
   const [isViewTaskOpen, setIsViewTaskOpen] = useState(false);
@@ -45,6 +46,11 @@ export default function Home() {
     setSelectedTask(null);
   }
 
+  function closeDeleteTaskModal() {
+    setIsDeleteTaskOpen(false);
+    setSelectedTask(null);
+  }
+
   async function handleSaveTask(updatedTask: Task) {
     console.log("Parent handleSaveTask fired", updatedTask);
     console.log("chosenBoardId:", chosenBoardId);
@@ -66,8 +72,18 @@ export default function Home() {
     setIsEditTaskOpen(false);
   }
 
-  async function handleDeleteTask() {
-    
+  async function handleDeleteTask(task: Task) {
+    if (!chosenBoardId || !task.column_id) return;
+
+    await deleteTask(
+      Number(chosenBoardId),
+      Number(task.column_id),
+      Number(task.id)
+    );
+
+    setIsDeleteTaskOpen(false);
+    setSelectedTask(null);
+    setTaskRefreshKey((prev) => prev + 1);
   }
 
   useEffect(() => {
@@ -115,6 +131,14 @@ export default function Home() {
               onClose={closeEditTaskModal}
               task={selectedTask}
               onSave={handleSaveTask}
+            />
+          )}
+
+          {isDeleteTaskOpen && selectedTask && (
+            <DeleteTaskModal
+              task={selectedTask}
+              onClose={closeDeleteTaskModal}
+              onDelete={handleDeleteTask}
             />
           )}
 

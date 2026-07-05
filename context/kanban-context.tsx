@@ -149,13 +149,18 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
         }
     };
 
-    const deleteTask = async () => {
+    const deleteTask = async (
+        boardId: number,
+        columnId: number,
+        taskId: number
+    ): Promise<void> => {
         try {
-            
+            await axios.delete(`/api/boards/${boardId}/columns/${columnId}/tasks/${taskId}`);
         } catch (error) {
-            
+            console.log("Error deleting task:", error);
+            throw error;
         }
-    }
+    };
 
     const getSubtasksByTask = async (boardId: number, columnId: number, taskId: number): Promise<Subtask[]> => {
         try {
@@ -179,7 +184,8 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
             getBoard, createBoard,
             createColumn, deleteColumn,
             getColumn, addColumn,
-            updateTask, getSubtasksByTask
+            updateTask, getSubtasksByTask,
+            deleteTask
 
         }}>
             {children}
