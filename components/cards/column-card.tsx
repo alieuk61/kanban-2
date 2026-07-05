@@ -3,7 +3,7 @@ import { useAppContext } from "@/context/kanban-context";
 import TaskCard from "./task-card";
 import type { Column, Task } from "@/types/types";
 
-export default function ColumnCard({ column, onTaskClick }: { column: Column, onTaskClick: (task: Task) => void }) {
+export default function ColumnCard({ column, onTaskClick, taskRefreshKey }: { column: Column, onTaskClick: (task: Task) => void, taskRefreshKey: Number }) {
     const [tasks, setTasks] = useState<Task[]>([]);
     const { getTasksByColumn, chosenBoardId } = useAppContext();
 
@@ -19,7 +19,7 @@ export default function ColumnCard({ column, onTaskClick }: { column: Column, on
         }
 
         loadTasks();
-    }, [chosenBoardId, column.id]);
+    }, [chosenBoardId, column.id, taskRefreshKey]);
 
     return (
         <div className="min-w-72 rounded-md p-4 text-black mr-2">

@@ -24,6 +24,8 @@ type AppContextValue = {
     getColumn: (boardId: number, columnId: number) => Promise<void>;
     getColumns: (boardId: number) => Promise<void>;
     getTasksByColumn: (boardId: number, columnId: number) => Promise<Task[]>;
+    updateTask: (boardId: number, columnId: number, taskId: number, updatedTask: Task) => Promise<Task | null>;
+    deleteTask: (boardId: number, columnId: number, taskId: number) => Promise<void>;
     getSubtasksByTask: (boardId: number, columnId: number, taskId: number) => Promise<Subtask[]>;
 };
 
@@ -122,9 +124,42 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
         }
     };
 
+    const updateTask = async (
+        boardId: number,
+        columnId: number,
+        taskId: number,
+        updatedTask: Task
+    ): Promise<Task | null> => {
+        try {
+            console.log("updateTask request ids:", {
+                boardId,
+                columnId,
+                taskId,
+            });
+            console.log("updated task: ", updatedTask);
+            const response = await axios.put(
+                `/api/boards/${boardId}/columns/${columnId}/tasks/${taskId}`,
+                updatedTask
+            );
+
+            return response.data;
+        } catch (error) {
+            console.log("there was an error when trying to update the task", error);
+            throw error;
+        }
+    };
+
+    const deleteTask = async () => {
+        try {
+            
+        } catch (error) {
+            
+        }
+    }
+
     const getSubtasksByTask = async (boardId: number, columnId: number, taskId: number): Promise<Subtask[]> => {
         try {
-            const response = await axios.get(`/api/boards/${boardId}/columns/${columnId}/tasks/${taskId}`);
+            const response = await axios.get(`/api/boards/${boardId}/columns/${columnId}/tasks/${taskId}/subtasks`);
             return response.data;
         } catch (error) {
             console.log(error);
@@ -144,7 +179,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
             getBoard, createBoard,
             createColumn, deleteColumn,
             getColumn, addColumn,
-            getSubtasksByTask
+            updateTask, getSubtasksByTask
 
         }}>
             {children}
