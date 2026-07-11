@@ -1,10 +1,9 @@
 -- get all boards
     SELECT * FROM boards
-    WHERE id = $1;
+    ORDER BY id;
 
 --  get columns
     SELECT * FROM columns
-    WHERE board_id = $1
     ORDER BY position;
 
 
@@ -22,7 +21,6 @@
     FROM columns c
     LEFT JOIN tasks t ON t.column_id = c.id
     LEFT JOIN subtasks s ON s.task_id = t.id
-    WHERE c.board_id = $1
     ORDER BY c.position, t.position, s.position
 
 -- create board

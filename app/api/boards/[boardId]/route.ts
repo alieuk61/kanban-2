@@ -1,0 +1,70 @@
+import { NextResponse } from "next/server";
+import { ApiError } from "@/lib/errors";
+import { getBoard } from "@/lib/boards/getBoards";
+import { Board } from "@/types/types";
+import { deleteBoard } from "@/lib/boards/deleteBoard";
+
+type Params = { 
+    boardId: string
+};
+
+export async function GET(req: Request, context: { params: Promise<Params> }) {
+    try {
+
+        const { boardId } = await context.params;
+        const board = await getBoard(Number(boardId));
+        console.log(context, typeof (context));
+        return NextResponse.json(board, { status: 200 });
+    } catch (error) {
+        if (error instanceof ApiError) {
+            return NextResponse.json(
+                { error: error.message },
+                { status: error.status }
+            );
+        }
+
+        // if the error is not api related, then it's an internal server error
+        console.error("Route failed:", error);
+        return NextResponse.json(
+            { error: error instanceof Error ? error.message : "Internal server error" },
+            { status: 500 }
+        );
+    }
+}
+/*we ask if the error we recieve is an instance of api Error and that could return true
+ because ApiError is an instance of the original error, its an inheritance chain
+reasons for using this error class:
+JavaScript checks:
+
+Was err constructed via new ApiError()?
+
+Or was it constructed via new Error()?
+
+Or something else?
+
+It does NOT compare messages.
+It does NOT compare status codes.
+It checks the constructor lineage.
+
+It only cares about:
+
+Is this a domain error or not?
+
+That’s clean separation.
+
+ */
+
+export async function DELETE(req: Request, { params }: { params: Params }) {
+    try {
+        const boardId = Number(params.boardId);
+        const deletedBoard = await deleteBoard(boardId);
+        return NextResponse.json(deletedBoard, { status: 200 });
+    } catch (error) {
+        if (error instanceof ApiError) {
+            return NextResponse.json(
+                { error: error.message },
+                { status: error.status }
+            )
+        }
+    }
+}
