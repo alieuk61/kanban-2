@@ -1,9 +1,10 @@
+import { Subtask } from "@/types/types"
 
+export default function SubtaskCard (){
 
-export default function Subtaskcard() {
     return (
-        <div>
-            <h2>{/* Subtask title */}</h2>
+        <div className=" bg-white">
+            <h2>{/* Subtask title */} title</h2>
             <section>{/* Subtask description */}</section>
             <div className="subtasks">
                 <h6>{/* completed subtask count */} out of {/*subtasks.length*/}</h6>

@@ -19,6 +19,7 @@ export default function Home() {
   const [isEditTaskOpen, setIsEditTaskOpen] = useState(false);
   const [taskRefreshKey, setTaskRefreshKey] = useState(0);
   const [isDeleteTaskOpen, setIsDeleteTaskOpen] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   function handleOpenTask(task: Task, columnId: number) {
     setSelectedTask(task);
@@ -50,6 +51,8 @@ export default function Home() {
     setIsDeleteTaskOpen(false);
     setSelectedTask(null);
   }
+
+  const toggleSidebar = () => setIsSidebarOpen((prev) => !prev)
 
   async function handleSaveTask(updatedTask: Task) {
     console.log("Parent handleSaveTask fired", updatedTask);
@@ -94,13 +97,15 @@ export default function Home() {
 
   return (
     <main className="flex min-h-screen h-screen bg-[#828FA3] flex-col">
-      {/* <Sidebar /> */}
 
       <div className="flex-1">
         <Header />
       </div>
 
       <div>
+        <Sidebar
+        isActive={isSidebarOpen}
+        />
         <div className="bg-[#E4EBFA] w-full h-screen flex ">
           
           {columns && columns.length > 0 ? (
@@ -142,7 +147,9 @@ export default function Home() {
             />
           )}
 
-          <SidebarButton />
+          <SidebarButton
+            onClick={toggleSidebar}
+          />
         </div>
       </div>
     </main>
