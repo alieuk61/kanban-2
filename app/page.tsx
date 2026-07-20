@@ -7,12 +7,15 @@ import { Task } from "@/types/types";
 import { useEffect, useState } from "react";
 import { useAppContext } from "@/context/kanban-context";
 import ColumnCard from "@/components/cards/column-card";
-import { AddColumnButton } from "@/components/buttons/columns/add-column";
+import { AddColumnButton } from "@/components/buttons/columns/add-column-button";
 import EditTaskModal from "@/components/modals/task/edit-task-modal";
 import DeleteTaskModal from "@/components/modals/task/delete-task-modal";
+import { NewColumnTab } from "@/components/buttons/columns/new-column-tab";
+import AddNewBoardModal from "@/components/modals/board/add-board-modal";
+import AddColumnModal from "@/components/modals/column/add-column-modal";
 
 export default function Home() {
-  const { getBoard, getAllBoards, chosenBoardId, columns, getColumns, updateTask, deleteTask } = useAppContext();
+  const { getBoard, createBoard, createColumn, getAllBoards, chosenBoardId, columns, getColumns, updateTask, deleteTask } = useAppContext();
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [selectedColumnId, setSelectedColumnId] = useState<number | null>(null);
   const [isViewTaskOpen, setIsViewTaskOpen] = useState(false);
@@ -20,6 +23,8 @@ export default function Home() {
   const [taskRefreshKey, setTaskRefreshKey] = useState(0);
   const [isDeleteTaskOpen, setIsDeleteTaskOpen] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isAddBoardOpen, setIsAddBoardOpen] = useState(false);
+  const [isAddColumnOpen, setIsAddColumnOpen] = useState(false);
 
   function handleOpenTask(task: Task, columnId: number) {
     setSelectedTask(task);
@@ -89,6 +94,24 @@ export default function Home() {
     setTaskRefreshKey((prev) => prev + 1);
   }
 
+  async function handleCreateBoard(name: string) {
+    const newBoard = await createBoard({ name });
+
+    await getAllBoards();
+    await getBoard(Number(newBoard.id));
+    await getColumns(Number(newBoard.id));
+
+    setIsAddBoardOpen(false);
+  }
+
+  async function handleCreateColumn(name: string) {
+    if (!chosenBoardId) throw new Error("Select a board before adding a column");
+
+    await createColumn(Number(chosenBoardId), { name });
+    await getColumns(Number(chosenBoardId));
+    setIsAddColumnOpen(false);
+  }
+
   useEffect(() => {
     getAllBoards()
     getBoard(1)
@@ -107,18 +130,31 @@ export default function Home() {
         isActive={isSidebarOpen}
         />
         <div className="bg-[#E4EBFA] w-full h-screen flex ">
+
+          {isAddBoardOpen && <AddNewBoardModal/>}
           
           {columns && columns.length > 0 ? (
-            columns.map((col) => 
-            <ColumnCard 
-             key={col.id}
-             column={col}
-             taskRefreshKey={taskRefreshKey}
-             onTaskClick={handleOpenTask} 
-             />)
-             
+            <>
+              {columns.map((col) => (
+                <ColumnCard
+                  key={col.id}
+                  column={col}
+                  taskRefreshKey={taskRefreshKey}
+                  onTaskClick={handleOpenTask}
+                />
+              ))}
+
+              <NewColumnTab onClick={() => setIsAddColumnOpen(true)} />
+            </>
           ) : (
-            <AddColumnButton />
+            <AddColumnButton onClick={() => setIsAddColumnOpen(true)} />
+          )}
+
+          {isAddColumnOpen && (
+            <AddColumnModal
+              onClose={() => setIsAddColumnOpen(false)}
+              onSubmit={handleCreateColumn}
+            />
           )}
 
           {isViewTaskOpen && selectedTask && (
@@ -149,6 +185,7 @@ export default function Home() {
 
           <SidebarButton
             onClick={toggleSidebar}
+            setIsAddBoardOpen={setIsAddBoardOpen}
           />
         </div>
       </div>

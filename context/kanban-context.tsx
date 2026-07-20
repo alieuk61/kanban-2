@@ -16,17 +16,17 @@ type AppContextValue = {
     setColumns: React.Dispatch<React.SetStateAction<Column[] | null>>;
     getAllBoards: () => Promise<void>;
     getBoard: (boardId: number) => Promise<void>;
-    createBoard: (newboard: Board) => Promise<void>
+    createBoard: (newBoard: Pick<Board, "name">) => Promise<Board>;
     deleteBoard: (boardId: number) => Promise<void>;
-    createColumn: (boardId: number, newColumn: Column) => Promise<void>;
+    createColumn: (boardId: number, newColumn: Pick<Column, "name">) => Promise<Column>;
     deleteColumn: (boardId: number, columnId: number) => Promise<void>;
-    addColumn: (boardId: number, newColumn: Column) => Promise<void>;
     getColumn: (boardId: number, columnId: number) => Promise<void>;
     getColumns: (boardId: number) => Promise<void>;
     getTasksByColumn: (boardId: number, columnId: number) => Promise<Task[]>;
     updateTask: (boardId: number, columnId: number, taskId: number, updatedTask: Task) => Promise<Task | null>;
     deleteTask: (boardId: number, columnId: number, taskId: number) => Promise<void>;
     getSubtasksByTask: (boardId: number, columnId: number, taskId: number) => Promise<Subtask[]>;
+    
 };
 
 export const AppContext = createContext<AppContextValue | undefined>(undefined);
@@ -73,13 +73,13 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
         }
     }
 
-    const createBoard = async(newBoard: Board): Promise<void> => {
-        try {
-            await axios.post(`/api/boards`)
-        } catch (error) {
-            throw('error when trying to create board')
-        }
-    }
+    const createBoard = async (
+        newBoard: Pick<Board, "name">
+        // creates new board and only requires name to be included in the new board
+    ): Promise<Board> => {
+        const response = await axios.post("/api/boards", newBoard);
+        return response.data;
+    };
 
     const deleteBoard = async(boardId: number): Promise<void> => {
     try {
@@ -90,16 +90,13 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
  }    
 
 //  columns
-    const createColumn = async(boardId: number, newColumn: Column): Promise<void> => {
-        await axios.post(`/api/boards/${boardId}/columns`, newColumn)
+    const createColumn = async(boardId: number, newColumn: Pick<Column, "name">): Promise<Column> => {
+        const response = await axios.post(`/api/boards/${boardId}/columns`, newColumn)
+        return response.data;
     }
 
     const deleteColumn = async (boardId: number, columnId: number): Promise<void> => {
         await axios.delete(`/api/boards/${boardId}/columns/${columnId}`)
-    }
-
-    const addColumn = async(boardId: number, newColumn: Column): Promise<void> => {
-        await axios.post(`/api/boards/${boardId}/columns`, newColumn)
     }
 
     const getColumn = async(boardId: number, columnId: number): Promise<void> => {
@@ -183,7 +180,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
             getAllBoards, deleteBoard,
             getBoard, createBoard,
             createColumn, deleteColumn,
-            getColumn, addColumn,
+            getColumn,
             updateTask, getSubtasksByTask,
             deleteTask
 

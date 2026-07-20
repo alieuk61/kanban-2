@@ -3,9 +3,10 @@
 import { useAppContext } from "@/context/kanban-context";
 type sidebarProps = {
     isActive: boolean;
+    setIsAddBoardOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-export default function Sidebar({isActive} : sidebarProps) {
+export default function Sidebar({isActive, setIsAddBoardOpen} : sidebarProps) {
     const { AllBoards, chosenBoardId, getBoard, getColumns } = useAppContext();
 
     async function handleBoardClick(boardId: number) {
@@ -40,6 +41,13 @@ export default function Sidebar({isActive} : sidebarProps) {
                         </button>
                     );
                 })}
+
+                <button 
+                    type="button"
+                    onClick={() => setIsAddBoardOpen(prev => !prev)}
+                    className="text-purple-600 font-semibold cursor-pointer">
+                    +Create New Board
+                </button>
             </div>
         </aside>
     );

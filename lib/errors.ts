@@ -15,4 +15,5 @@ because this is a subclass, we have to refer to the parent class first here we a
 parents message by using the 'super' function and we are if had anything else from the parent class that we needed to use we would add it by using the super function
 we added status and code, so when its passed through the class it will override the original status and code, hence what the this is used for to reference those keys and add the new info to them
 if no new status or code is added it falls onto the ones we set above
+instead of letting our errors become status 500 server error, we make ApiError class to prevent that and show us the real error
 */

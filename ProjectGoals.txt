@@ -148,3 +148,12 @@ Not when it’s pretty.
 The one-sentence goal (remember this)
 
 Build a Kanban-style app to practice backend data modelling, SQL, and frontend–backend boundaries — not to build Trello.
+
+notes:
+lib → returns data or throws ApiError
+route.ts → translates to NextResponse and returns json, status codes and headers
+
+the last thing we did was create a toggle elipses function, we need a dropdown to appear after clicking the elipses
+finish committing later
+
+right now working on clicking the drop down => if we click delete, we want the modal to accept taskid, if we 
