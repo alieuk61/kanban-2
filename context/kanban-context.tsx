@@ -23,6 +23,7 @@ type AppContextValue = {
     getColumn: (boardId: number, columnId: number) => Promise<void>;
     getColumns: (boardId: number) => Promise<void>;
     getTasksByColumn: (boardId: number, columnId: number) => Promise<Task[]>;
+    createTask: (boardId: number, columnId: number, newTask: { title: string; description: string; subtasks: string[] }) => Promise<Task>;
     updateTask: (boardId: number, columnId: number, taskId: number, updatedTask: Task) => Promise<Task | null>;
     deleteTask: (boardId: number, columnId: number, taskId: number) => Promise<void>;
     getSubtasksByTask: (boardId: number, columnId: number, taskId: number) => Promise<Subtask[]>;
@@ -121,6 +122,18 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
         }
     };
 
+    const createTask = async (
+        boardId: number,
+        columnId: number,
+        newTask: { title: string; description: string; subtasks: string[] }
+    ): Promise<Task> => {
+        const response = await axios.post(
+            `/api/boards/${boardId}/columns/${columnId}/tasks`,
+            newTask
+        );
+        return response.data;
+    };
+
     const updateTask = async (
         boardId: number,
         columnId: number,
@@ -181,7 +194,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
             getBoard, createBoard,
             createColumn, deleteColumn,
             getColumn,
-            updateTask, getSubtasksByTask,
+            createTask, updateTask, getSubtasksByTask,
             deleteTask
 
         }}>

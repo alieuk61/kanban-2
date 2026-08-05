@@ -13,9 +13,10 @@ import DeleteTaskModal from "@/components/modals/task/delete-task-modal";
 import { NewColumnTab } from "@/components/buttons/columns/new-column-tab";
 import AddNewBoardModal from "@/components/modals/board/add-board-modal";
 import AddColumnModal from "@/components/modals/column/add-column-modal";
+import { AddTaskModal, NewTaskValues } from "@/components/modals/task/add-task-modal";
 
 export default function Home() {
-  const { getBoard, createBoard, createColumn, getAllBoards, chosenBoardId, columns, getColumns, updateTask, deleteTask } = useAppContext();
+  const { getBoard, createBoard, createColumn, createTask, getAllBoards, chosenBoardId, columns, getColumns, updateTask, deleteTask } = useAppContext();
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [selectedColumnId, setSelectedColumnId] = useState<number | null>(null);
   const [isViewTaskOpen, setIsViewTaskOpen] = useState(false);
@@ -25,6 +26,7 @@ export default function Home() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isAddBoardOpen, setIsAddBoardOpen] = useState(false);
   const [isAddColumnOpen, setIsAddColumnOpen] = useState(false);
+  const [isAddTaskOpen, setIsAddTaskOpen] = useState(false);
 
   function handleOpenTask(task: Task, columnId: number) {
     setSelectedTask(task);
@@ -112,6 +114,18 @@ export default function Home() {
     setIsAddColumnOpen(false);
   }
 
+  async function handleCreateTask(values: NewTaskValues) {
+    if (!chosenBoardId) throw new Error("Select a board before adding a task");
+
+    await createTask(Number(chosenBoardId), values.columnId, {
+      title: values.title,
+      description: values.description,
+      subtasks: values.subtasks,
+    });
+    setTaskRefreshKey((previous) => previous + 1);
+    setIsAddTaskOpen(false);
+  }
+
   useEffect(() => {
     getAllBoards()
     getBoard(1)
@@ -122,7 +136,7 @@ export default function Home() {
     <main className="flex min-h-screen h-screen bg-[#828FA3] flex-col">
 
       <div className="flex-1">
-        <Header />
+        <Header onAddTask={() => setIsAddTaskOpen(true)} />
       </div>
 
       <div>
@@ -154,6 +168,14 @@ export default function Home() {
             <AddColumnModal
               onClose={() => setIsAddColumnOpen(false)}
               onSubmit={handleCreateColumn}
+            />
+          )}
+
+          {isAddTaskOpen && columns && columns.length > 0 && (
+            <AddTaskModal
+              columns={columns}
+              onClose={() => setIsAddTaskOpen(false)}
+              onSubmit={handleCreateTask}
             />
           )}
 
