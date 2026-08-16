@@ -16,7 +16,7 @@ import AddColumnModal from "@/components/modals/column/add-column-modal";
 import { AddTaskModal, NewTaskValues } from "@/components/modals/task/add-task-modal";
 
 export default function Home() {
-  const { getBoard, createBoard, createColumn, createTask, getAllBoards, chosenBoardId, columns, getColumns, updateTask, deleteTask } = useAppContext();
+  const { getBoard, createBoard, createColumn, createTask, getAllBoards, chosenBoardId, columns, getColumns, getSubtasksByTask, updateTask, deleteTask } = useAppContext();
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [selectedColumnId, setSelectedColumnId] = useState<number | null>(null);
   const [isViewTaskOpen, setIsViewTaskOpen] = useState(false);
@@ -28,9 +28,9 @@ export default function Home() {
   const [isAddColumnOpen, setIsAddColumnOpen] = useState(false);
   const [isAddTaskOpen, setIsAddTaskOpen] = useState(false);
 
-  function handleOpenTask(task: Task, columnId: number) {
+  function handleOpenTask(task: Task) {
     setSelectedTask(task);
-    setSelectedColumnId(columnId);
+    setSelectedColumnId(task.column_id);
     setIsViewTaskOpen(true);
   }
 
@@ -39,7 +39,15 @@ export default function Home() {
     setSelectedTask(null);
   }
 
-  function editTaskClicked() {
+  async function editTaskClicked() {
+    if (!selectedTask || !chosenBoardId) return;
+
+    const subtasks = await getSubtasksByTask(
+      Number(chosenBoardId),
+      selectedTask.column_id,
+      selectedTask.id
+    );
+    setSelectedTask({ ...selectedTask, subtasks });
     setIsViewTaskOpen(false);
     setIsEditTaskOpen(true);
   }
@@ -68,11 +76,11 @@ export default function Home() {
     console.log("selectedTask?.column_id:", selectedTask?.column_id);
     console.log("updatedTask.id:", updatedTask.id);
 
-    if (!chosenBoardId || !updatedTask.column_id) return;
+    if (!chosenBoardId || !selectedColumnId || !updatedTask.column_id) return;
 
     const savedTask = await updateTask(
       Number(chosenBoardId),
-      Number(updatedTask?.column_id),
+      selectedColumnId,
       Number(updatedTask.id),
       updatedTask
     );
@@ -80,6 +88,7 @@ export default function Home() {
     setTaskRefreshKey((prev) => prev + 1);
     setSelectedTask(savedTask ?? updatedTask);
     setIsEditTaskOpen(false);
+    setSelectedColumnId(updatedTask.column_id);
   }
 
   async function handleDeleteTask(task: Task) {
@@ -193,6 +202,7 @@ export default function Home() {
             <EditTaskModal
               onClose={closeEditTaskModal}
               task={selectedTask}
+              columns={columns ?? []}
               onSave={handleSaveTask}
             />
           )}

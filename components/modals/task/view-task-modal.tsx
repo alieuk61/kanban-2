@@ -1,4 +1,4 @@
-import type { Subtask, Task, Column } from "@/types/types";
+import type { Subtask, Task } from "@/types/types";
 import { useState, useEffect } from "react";
 import { useAppContext } from "@/context/kanban-context";
 import elipsesIcon from '../../../public/ellipsis.svg'
@@ -36,7 +36,7 @@ export default function ViewTaskModal({
         Number(task.id)
       );
       console.log("subtasks data:", data, Array.isArray(data));
-      setSubtasks([data]);
+      setSubtasks(data);
     }
 
     loadSubtasks();
