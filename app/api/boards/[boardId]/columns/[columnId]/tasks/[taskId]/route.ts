@@ -124,6 +124,61 @@ export async function PUT(
     }
 }
 
+export async function PATCH(
+    req: Request,
+    { params }: {
+        params: Promise<{ boardId: string; columnId: string; taskId: string }>;
+    }
+) {
+    const client = await pool.connect();
+
+    try {
+        const { boardId, columnId, taskId } = await params;
+        const body = await req.json();
+        const numericBoardId = Number(boardId);
+        const sourceColumnId = Number(columnId);
+        const numericTaskId = Number(taskId);
+        const destinationColumnId = Number(body.destinationColumnId);
+
+        if (![numericBoardId, sourceColumnId, numericTaskId, destinationColumnId].every(Number.isInteger)) {
+            return NextResponse.json({ error: "Invalid task move" }, { status: 400 });
+        }
+
+        await client.query("BEGIN");
+        const result = await client.query(
+            `UPDATE tasks
+             SET column_id = $1,
+                 position = COALESCE(
+                    (SELECT MAX(position) FROM tasks WHERE column_id = $1),
+                    0
+                 ) + 1,
+                 updated_at = now()
+             WHERE id = $2
+               AND column_id = $3
+               AND EXISTS (
+                   SELECT 1 FROM columns
+                   WHERE id = $1 AND board_id = $4
+               )
+             RETURNING id, column_id, title, description, position, created_at, updated_at`,
+            [destinationColumnId, numericTaskId, sourceColumnId, numericBoardId]
+        );
+
+        if (!result.rows[0]) {
+            await client.query("ROLLBACK");
+            return NextResponse.json({ error: "Task or destination column not found" }, { status: 404 });
+        }
+
+        await client.query("COMMIT");
+        return NextResponse.json(result.rows[0], { status: 200 });
+    } catch (error) {
+        await client.query("ROLLBACK");
+        console.error("Error moving task:", error);
+        return NextResponse.json({ error: "Failed to move task" }, { status: 500 });
+    } finally {
+        client.release();
+    }
+}
+
 export async function DELETE(
     req: Request,
     {

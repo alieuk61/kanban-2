@@ -4,14 +4,16 @@ import { useAppContext } from "@/context/kanban-context";
 type sidebarProps = {
     isActive: boolean;
     setIsAddBoardOpen: React.Dispatch<React.SetStateAction<boolean>>;
+    onBoardSelected: () => void;
 }
 
-export default function Sidebar({isActive, setIsAddBoardOpen} : sidebarProps) {
+export default function Sidebar({isActive, setIsAddBoardOpen, onBoardSelected} : sidebarProps) {
     const { AllBoards, chosenBoardId, getBoard, getColumns } = useAppContext();
 
     async function handleBoardClick(boardId: number) {
         await getBoard(boardId);
         await getColumns(boardId);
+        onBoardSelected();
     }
 
     return (

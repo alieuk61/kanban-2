@@ -4,6 +4,7 @@ import { useAppContext } from "@/context/kanban-context";
 import elipsesIcon from '../../../public/ellipsis.svg'
 import Image from "next/image";
 import TaskActionsDropdown from "@/components/dropdowns/task-options";
+import SubtaskCard from "@/components/cards/subtask-card";
 
 export default function ViewTaskModal({
   columnId,
@@ -20,8 +21,10 @@ export default function ViewTaskModal({
 }) {
 
   const [subtasks, setSubtasks] = useState<Subtask[]>([]);
-  const {getSubtasksByTask, chosenBoardId} = useAppContext();
+  const {getSubtasksByTask, updateSubtaskCompletion, chosenBoardId} = useAppContext();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [updatingSubtaskId, setUpdatingSubtaskId] = useState<number | null>(null);
+  const [subtaskError, setSubtaskError] = useState("");
   // since theres only one elipses ill track if its being clicked
 
   useEffect(() => {
@@ -40,7 +43,32 @@ export default function ViewTaskModal({
     }
 
     loadSubtasks();
+    // The context function is intentionally omitted because it is recreated by the provider.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [chosenBoardId, columnId, task.id]);
+
+  async function handleSubtaskChange(subtask: Subtask, isDone: boolean) {
+    if (!chosenBoardId) return;
+
+    try {
+      setSubtaskError("");
+      setUpdatingSubtaskId(subtask.id);
+      const updatedSubtask = await updateSubtaskCompletion(
+        Number(chosenBoardId),
+        Number(columnId),
+        Number(task.id),
+        Number(subtask.id),
+        isDone
+      );
+      setSubtasks((current) => current.map((item) =>
+        item.id === updatedSubtask.id ? updatedSubtask : item
+      ));
+    } catch {
+      setSubtaskError("Unable to update the subtask. Please try again.");
+    } finally {
+      setUpdatingSubtaskId(null);
+    }
+  }
 
 
 
@@ -91,7 +119,17 @@ export default function ViewTaskModal({
             {/* we filter the whole array get all the ones with is_done being true and get the length */}
           </h4>
           <section>
-            {/* map through subtasks */}
+            <div className="mt-3 flex flex-col gap-2">
+              {subtasks.map((subtask) => (
+                <SubtaskCard
+                  key={subtask.id}
+                  subtask={subtask}
+                  isUpdating={updatingSubtaskId === subtask.id}
+                  onChange={(isDone) => handleSubtaskChange(subtask, isDone)}
+                />
+              ))}
+            </div>
+            {subtaskError && <p className="mt-2 text-sm text-red-600">{subtaskError}</p>}
           </section>
         </div>
 

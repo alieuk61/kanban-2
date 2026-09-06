@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 import { ApiError } from "@/lib/errors";
 import { getBoard } from "@/lib/boards/getBoards";
-import { Board } from "@/types/types";
 import { deleteBoard } from "@/lib/boards/deleteBoard";
 
 type Params = { 
@@ -54,9 +53,10 @@ That’s clean separation.
 
  */
 
-export async function DELETE(req: Request, { params }: { params: Params }) {
+export async function DELETE(req: Request, context: { params: Promise<Params> }) {
     try {
-        const boardId = Number(params.boardId);
+        const { boardId: requestedBoardId } = await context.params;
+        const boardId = Number(requestedBoardId);
         const deletedBoard = await deleteBoard(boardId);
         return NextResponse.json(deletedBoard, { status: 200 });
     } catch (error) {
@@ -66,5 +66,7 @@ export async function DELETE(req: Request, { params }: { params: Params }) {
                 { status: error.status }
             )
         }
+
+        return NextResponse.json({ error: "Internal server error" }, { status: 500 });
     }
 }

@@ -16,7 +16,7 @@ import AddColumnModal from "@/components/modals/column/add-column-modal";
 import { AddTaskModal, NewTaskValues } from "@/components/modals/task/add-task-modal";
 
 export default function Home() {
-  const { getBoard, createBoard, createColumn, createTask, getAllBoards, chosenBoardId, columns, getColumns, getSubtasksByTask, updateTask, deleteTask } = useAppContext();
+  const { getBoard, createBoard, createColumn, createTask, getAllBoards, chosenBoardId, columns, getColumns, getSubtasksByTask, updateTask, moveTask, deleteTask } = useAppContext();
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [selectedColumnId, setSelectedColumnId] = useState<number | null>(null);
   const [isViewTaskOpen, setIsViewTaskOpen] = useState(false);
@@ -69,6 +69,15 @@ export default function Home() {
 
   const toggleSidebar = () => setIsSidebarOpen((prev) => !prev)
 
+  function handleBoardSelected() {
+    setIsSidebarOpen(false);
+    setSelectedTask(null);
+    setSelectedColumnId(null);
+    setIsViewTaskOpen(false);
+    setIsEditTaskOpen(false);
+    setIsDeleteTaskOpen(false);
+  }
+
   async function handleSaveTask(updatedTask: Task) {
     console.log("Parent handleSaveTask fired", updatedTask);
     console.log("chosenBoardId:", chosenBoardId);
@@ -113,6 +122,7 @@ export default function Home() {
     await getColumns(Number(newBoard.id));
 
     setIsAddBoardOpen(false);
+    setIsSidebarOpen(false);
   }
 
   async function handleCreateColumn(name: string) {
@@ -135,10 +145,28 @@ export default function Home() {
     setIsAddTaskOpen(false);
   }
 
+  async function handleMoveTask(taskId: number, sourceColumnId: number, destinationColumnId: number) {
+    if (!chosenBoardId) return;
+
+    await moveTask(
+      Number(chosenBoardId),
+      sourceColumnId,
+      taskId,
+      destinationColumnId
+    );
+    setTaskRefreshKey((previous) => previous + 1);
+  }
+
   useEffect(() => {
-    getAllBoards()
-    getBoard(1)
-    getColumns(1)
+    async function loadInitialBoard() {
+      const boards = await getAllBoards();
+      if (!boards.length) return;
+
+      const firstBoardId = Number(boards[0].id);
+      await Promise.all([getBoard(firstBoardId), getColumns(firstBoardId)]);
+    }
+
+    loadInitialBoard();
   }, [])
 
   return (
@@ -151,10 +179,17 @@ export default function Home() {
       <div>
         <Sidebar
         isActive={isSidebarOpen}
+        setIsAddBoardOpen={setIsAddBoardOpen}
+        onBoardSelected={handleBoardSelected}
         />
         <div className="bg-[#E4EBFA] w-full h-screen flex ">
 
-          {isAddBoardOpen && <AddNewBoardModal/>}
+          {isAddBoardOpen && (
+            <AddNewBoardModal
+              onClose={() => setIsAddBoardOpen(false)}
+              onSubmit={handleCreateBoard}
+            />
+          )}
           
           {columns && columns.length > 0 ? (
             <>
@@ -164,6 +199,7 @@ export default function Home() {
                   column={col}
                   taskRefreshKey={taskRefreshKey}
                   onTaskClick={handleOpenTask}
+                  onTaskDrop={handleMoveTask}
                 />
               ))}
 
@@ -217,7 +253,6 @@ export default function Home() {
 
           <SidebarButton
             onClick={toggleSidebar}
-            setIsAddBoardOpen={setIsAddBoardOpen}
           />
         </div>
       </div>

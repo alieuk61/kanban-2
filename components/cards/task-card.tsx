@@ -1,17 +1,23 @@
 import { Task } from "@/types/types";
-import { useState } from "react";
 
 export default function TaskCard({
   task,
   onClick,
+  onDragStart,
+  onDragEnd,
 }: {
   task: Task;
   onClick: () => void;
+  onDragStart: (event: React.DragEvent<HTMLDivElement>) => void;
+  onDragEnd: () => void;
 }) {
     return(
-        <div 
+        <div
+        draggable
         onClick={onClick}
-        className="bg-white p-2 rounded-lg flex flex-col cursor-pointer ">
+        onDragStart={onDragStart}
+        onDragEnd={onDragEnd}
+        className="bg-white p-2 rounded-lg flex flex-col cursor-grab active:cursor-grabbing active:opacity-50">
             <h2>{task.title}</h2>
             <p>completed subtasks out of subtask length</p>
         </div>

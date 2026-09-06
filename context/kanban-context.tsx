@@ -14,7 +14,7 @@ type AppContextValue = {
     setChosenBoardId: React.Dispatch<React.SetStateAction<string | null>>;
     columns: Column[] | null;
     setColumns: React.Dispatch<React.SetStateAction<Column[] | null>>;
-    getAllBoards: () => Promise<void>;
+    getAllBoards: () => Promise<Board[]>;
     getBoard: (boardId: number) => Promise<void>;
     createBoard: (newBoard: Pick<Board, "name">) => Promise<Board>;
     deleteBoard: (boardId: number) => Promise<void>;
@@ -25,8 +25,10 @@ type AppContextValue = {
     getTasksByColumn: (boardId: number, columnId: number) => Promise<Task[]>;
     createTask: (boardId: number, columnId: number, newTask: { title: string; description: string; subtasks: string[] }) => Promise<Task>;
     updateTask: (boardId: number, columnId: number, taskId: number, updatedTask: Task) => Promise<Task | null>;
+    moveTask: (boardId: number, sourceColumnId: number, taskId: number, destinationColumnId: number) => Promise<Task>;
     deleteTask: (boardId: number, columnId: number, taskId: number) => Promise<void>;
     getSubtasksByTask: (boardId: number, columnId: number, taskId: number) => Promise<Subtask[]>;
+    updateSubtaskCompletion: (boardId: number, columnId: number, taskId: number, subtaskId: number, isDone: boolean) => Promise<Subtask>;
     
 };
 
@@ -49,13 +51,14 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     const [columns, setColumns] = useState<Column[] | null>([]);
 
     // boards
-    const getAllBoards = async() : Promise<void> => {
+    const getAllBoards = async() : Promise<Board[]> => {
         try {
             const response = await axios.get('/api/boards');
             console.log('here are all the boards: ', response.data)
             // boards might be an array of boards
             setAllBoards(response.data);
             console.log('all boards: ', response.data)
+            return response.data;
 
         } catch (error) {
             throw('There was an error when trying to fetch the data: ' + error);
@@ -85,7 +88,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     const deleteBoard = async(boardId: number): Promise<void> => {
     try {
        await axios.delete(`/api/boards/${boardId}`);
-    } catch (error) {
+    } catch {
         throw('Error when trying to delete board')
     }
  }    
@@ -159,6 +162,19 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
         }
     };
 
+    const moveTask = async (
+        boardId: number,
+        sourceColumnId: number,
+        taskId: number,
+        destinationColumnId: number
+    ): Promise<Task> => {
+        const response = await axios.patch(
+            `/api/boards/${boardId}/columns/${sourceColumnId}/tasks/${taskId}`,
+            { destinationColumnId }
+        );
+        return response.data;
+    };
+
     const deleteTask = async (
         boardId: number,
         columnId: number,
@@ -182,6 +198,20 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
         }
     };
 
+    const updateSubtaskCompletion = async (
+        boardId: number,
+        columnId: number,
+        taskId: number,
+        subtaskId: number,
+        isDone: boolean
+    ): Promise<Subtask> => {
+        const response = await axios.patch(
+            `/api/boards/${boardId}/columns/${columnId}/tasks/${taskId}/subtasks/${subtaskId}`,
+            { isDone }
+        );
+        return response.data;
+    };
+
     return(
         <AppContext.Provider value={{
             board, setBoard,
@@ -194,7 +224,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
             getBoard, createBoard,
             createColumn, deleteColumn,
             getColumn,
-            createTask, updateTask, getSubtasksByTask,
+            createTask, updateTask, moveTask, getSubtasksByTask, updateSubtaskCompletion,
             deleteTask
 
         }}>
