@@ -1,4 +1,4 @@
-import type { Subtask, Task } from "@/types/types";
+import type { Column, Subtask, Task } from "@/types/types";
 import { useState, useEffect } from "react";
 import { useAppContext } from "@/context/kanban-context";
 import elipsesIcon from '../../../public/ellipsis.svg'
@@ -9,15 +9,19 @@ import SubtaskCard from "@/components/cards/subtask-card";
 export default function ViewTaskModal({
   columnId,
   task,
+  columns,
   onClose,
   onEditTask,
-  onDeleteTask
+  onDeleteTask,
+  onStatusChange
 }: {
   columnId: number;
   task: Task;
+  columns: Column[];
   onClose: () => void;
   onEditTask: () => void;
   onDeleteTask: () => void;
+  onStatusChange: (destinationColumnId: number) => Promise<void>;
 }) {
 
   const [subtasks, setSubtasks] = useState<Subtask[]>([]);
@@ -25,6 +29,8 @@ export default function ViewTaskModal({
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [updatingSubtaskId, setUpdatingSubtaskId] = useState<number | null>(null);
   const [subtaskError, setSubtaskError] = useState("");
+  const [isStatusUpdating, setIsStatusUpdating] = useState(false);
+  const [statusError, setStatusError] = useState("");
   // since theres only one elipses ill track if its being clicked
 
   useEffect(() => {
@@ -67,6 +73,20 @@ export default function ViewTaskModal({
       setSubtaskError("Unable to update the subtask. Please try again.");
     } finally {
       setUpdatingSubtaskId(null);
+    }
+  }
+
+  async function handleStatusChange(destinationColumnId: number) {
+    if (destinationColumnId === Number(task.column_id)) return;
+
+    try {
+      setStatusError("");
+      setIsStatusUpdating(true);
+      await onStatusChange(destinationColumnId);
+    } catch {
+      setStatusError("Unable to change the task status. Please try again.");
+    } finally {
+      setIsStatusUpdating(false);
     }
   }
 
@@ -134,7 +154,23 @@ export default function ViewTaskModal({
         </div>
 
         <section>
-          <h4>Current status</h4>
+          <label htmlFor="task-status" className="mt-5 flex flex-col gap-2 font-medium">
+            Current status
+            <select
+              id="task-status"
+              value={task.column_id}
+              disabled={isStatusUpdating}
+              onChange={(event) => handleStatusChange(Number(event.target.value))}
+              className="rounded border border-gray-300 px-3 py-2 disabled:cursor-wait disabled:opacity-60"
+            >
+              {columns.map((column) => (
+                <option key={column.id} value={column.id}>
+                  {column.name}
+                </option>
+              ))}
+            </select>
+          </label>
+          {statusError && <p className="mt-2 text-sm text-red-600">{statusError}</p>}
         </section>
       </div>
     </div>

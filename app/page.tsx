@@ -157,6 +157,22 @@ export default function Home() {
     setTaskRefreshKey((previous) => previous + 1);
   }
 
+  async function handleViewTaskStatusChange(destinationColumnId: number) {
+    if (!selectedTask) return;
+
+    await handleMoveTask(
+      Number(selectedTask.id),
+      Number(selectedTask.column_id),
+      destinationColumnId
+    );
+
+    setSelectedTask((current) => current
+      ? { ...current, column_id: destinationColumnId }
+      : current
+    );
+    setSelectedColumnId(destinationColumnId);
+  }
+
   useEffect(() => {
     async function loadInitialBoard() {
       const boards = await getAllBoards();
@@ -228,9 +244,11 @@ export default function Home() {
             <ViewTaskModal
               columnId={selectedTask.column_id}
               task={selectedTask}
+              columns={columns ?? []}
               onClose={handleCloseTaskModal}
               onEditTask={editTaskClicked}
               onDeleteTask={deleteTaskClicked}
+              onStatusChange={handleViewTaskStatusChange}
             />
           )}
 
