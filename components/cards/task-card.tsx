@@ -19,7 +19,9 @@ export default function TaskCard({
         onDragEnd={onDragEnd}
         className="bg-white p-2 rounded-lg flex flex-col cursor-grab active:cursor-grabbing active:opacity-50">
             <h2>{task.title}</h2>
-            <p>completed subtasks out of subtask length</p>
+            <p className="text-sm text-gray-500">
+                {task.completed_subtasks} of {task.total_subtasks} subtasks
+            </p>
         </div>
     )
 }

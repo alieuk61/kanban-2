@@ -16,6 +16,8 @@ export type Task = {
     created_at: string;
     updated_at: string;
     subtasks: Subtask[];
+    total_subtasks: number;
+    completed_subtasks: number;
 }
 
 export type Column = {

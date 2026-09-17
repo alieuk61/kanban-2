@@ -6,16 +6,21 @@ export async function getAllTasks (columnId: number)  {
     try {
 
         const result = await dbQuery(
-            `SELECT id,
-            column_id,
-            title,
-            description,
-            position,
-            created_at,
-            updated_at
-            FROM tasks
-            WHERE column_id = $1
-            ORDER BY position;`,
+            `SELECT
+                t.id,
+                t.column_id,
+                t.title,
+                t.description,
+                t.position,
+                t.created_at,
+                t.updated_at,
+                COUNT(s.id)::int AS total_subtasks,
+                COUNT(s.id) FILTER (WHERE s.is_done)::int AS completed_subtasks
+             FROM tasks t
+             LEFT JOIN subtasks s ON s.task_id = t.id
+             WHERE t.column_id = $1
+             GROUP BY t.id
+             ORDER BY t.position;`,
             [columnId]
         );
         

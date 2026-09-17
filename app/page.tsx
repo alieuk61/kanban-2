@@ -249,6 +249,7 @@ export default function Home() {
               onEditTask={editTaskClicked}
               onDeleteTask={deleteTaskClicked}
               onStatusChange={handleViewTaskStatusChange}
+              onSubtaskCompletionChange={() => setTaskRefreshKey((previous) => previous + 1)}
             />
           )}
 

@@ -13,7 +13,8 @@ export default function ViewTaskModal({
   onClose,
   onEditTask,
   onDeleteTask,
-  onStatusChange
+  onStatusChange,
+  onSubtaskCompletionChange
 }: {
   columnId: number;
   task: Task;
@@ -22,6 +23,7 @@ export default function ViewTaskModal({
   onEditTask: () => void;
   onDeleteTask: () => void;
   onStatusChange: (destinationColumnId: number) => Promise<void>;
+  onSubtaskCompletionChange: () => void;
 }) {
 
   const [subtasks, setSubtasks] = useState<Subtask[]>([]);
@@ -69,6 +71,7 @@ export default function ViewTaskModal({
       setSubtasks((current) => current.map((item) =>
         item.id === updatedSubtask.id ? updatedSubtask : item
       ));
+      onSubtaskCompletionChange();
     } catch {
       setSubtaskError("Unable to update the subtask. Please try again.");
     } finally {
