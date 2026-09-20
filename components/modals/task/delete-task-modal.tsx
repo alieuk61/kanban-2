@@ -13,9 +13,10 @@ export default function DeleteTaskModal({
         }: DeleteTaskModalProps) {
 
     if (!task) return null;
+    const taskToDelete = task;
 
     async function handleDelete() {
-        await onDelete(task);
+        await onDelete(taskToDelete);
         onClose();
     }
 

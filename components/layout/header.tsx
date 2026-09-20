@@ -1,13 +1,18 @@
 "use client";
+import { useState } from "react";
 import { useAppContext } from "@/context/kanban-context";
+import Image from "next/image";
+import ellipsisIcon from "../../public/ellipsis.svg";
 
 type HeaderProps = {
     onAddTask: () => void;
+    onDeleteBoard: () => void;
 };
 
-export default function Header({ onAddTask }: HeaderProps) {
+export default function Header({ onAddTask, onDeleteBoard }: HeaderProps) {
 
     const {board, columns} = useAppContext();
+    const [isBoardMenuOpen, setIsBoardMenuOpen] = useState(false);
 
     return (
         <nav className="flex justify-between items-center bg-white text-black w-full h-24 border-b-2 px-8 box-border border-[#828FA3]">
@@ -22,6 +27,25 @@ export default function Header({ onAddTask }: HeaderProps) {
                 >
                     Add new task
                 </button>
+                <div className="relative ml-4">
+                    <button type="button" disabled={!board} onClick={() => setIsBoardMenuOpen((current) => !current)} aria-label="Board options" className="p-3 disabled:opacity-40">
+                        <Image src={ellipsisIcon} alt="" width={20} height={20} />
+                    </button>
+                    {isBoardMenuOpen && board && (
+                        <div className="absolute right-0 top-12 z-40 w-48 rounded-md bg-white py-2 shadow-lg">
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    setIsBoardMenuOpen(false);
+                                    onDeleteBoard();
+                                }}
+                                className="w-full px-4 py-2 text-left text-red-500 hover:bg-gray-100"
+                            >
+                                Delete Board
+                            </button>
+                        </div>
+                    )}
+                </div>
             </ol>
         </nav>
     );

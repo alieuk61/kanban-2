@@ -9,5 +9,6 @@ export async function deleteBoard(boardId: number){
     if (deletedBoard.rowCount === 0) {
         throw new ApiError("Board not found", 404);
     }
-    
+
+    return deletedBoard.rows[0];
 }

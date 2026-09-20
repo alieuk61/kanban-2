@@ -10,9 +10,11 @@ export default function AddSubTaskButton({
     function handleAddSubtask() {
         const newSubtask: Subtask = {
             id: Date.now(),
+            task_id: 0,
             title: "",
             is_done: false,
-            position: subtasks.length,
+            position: subtasks.length + 1,
+            created_at: new Date().toISOString(),
         };
 
         setSubtasks([...subtasks, newSubtask]);

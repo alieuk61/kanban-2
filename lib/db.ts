@@ -7,7 +7,7 @@ export const pool = new Pool({
     },
 });
 
-export async function dbQuery(text: string, params?: any[]) {
+export async function dbQuery(text: string, params?: unknown[]) {
     return pool.query(text, params);
 }
 

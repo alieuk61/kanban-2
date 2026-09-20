@@ -14,9 +14,10 @@ import { NewColumnTab } from "@/components/buttons/columns/new-column-tab";
 import AddNewBoardModal from "@/components/modals/board/add-board-modal";
 import AddColumnModal from "@/components/modals/column/add-column-modal";
 import { AddTaskModal, NewTaskValues } from "@/components/modals/task/add-task-modal";
+import DeleteBoardModal from "@/components/modals/board/delete-board-modal";
 
 export default function Home() {
-  const { getBoard, createBoard, createColumn, createTask, getAllBoards, chosenBoardId, columns, getColumns, getSubtasksByTask, updateTask, moveTask, deleteTask } = useAppContext();
+  const { board, setBoard, setColumns, setChosenBoardId, getBoard, createBoard, deleteBoard, createColumn, createTask, getAllBoards, chosenBoardId, columns, getColumns, getSubtasksByTask, updateTask, moveTask, deleteTask } = useAppContext();
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [selectedColumnId, setSelectedColumnId] = useState<number | null>(null);
   const [isViewTaskOpen, setIsViewTaskOpen] = useState(false);
@@ -27,6 +28,7 @@ export default function Home() {
   const [isAddBoardOpen, setIsAddBoardOpen] = useState(false);
   const [isAddColumnOpen, setIsAddColumnOpen] = useState(false);
   const [isAddTaskOpen, setIsAddTaskOpen] = useState(false);
+  const [isDeleteBoardOpen, setIsDeleteBoardOpen] = useState(false);
 
   function handleOpenTask(task: Task) {
     setSelectedTask(task);
@@ -125,6 +127,23 @@ export default function Home() {
     setIsSidebarOpen(false);
   }
 
+  async function handleDeleteBoard(boardId: number) {
+    await deleteBoard(boardId);
+    const remainingBoards = await getAllBoards();
+
+    if (remainingBoards.length > 0) {
+      const nextBoardId = Number(remainingBoards[0].id);
+      await Promise.all([getBoard(nextBoardId), getColumns(nextBoardId)]);
+    } else {
+      setBoard(null);
+      setChosenBoardId(null);
+      setColumns([]);
+    }
+
+    setIsDeleteBoardOpen(false);
+    handleBoardSelected();
+  }
+
   async function handleCreateColumn(name: string) {
     if (!chosenBoardId) throw new Error("Select a board before adding a column");
 
@@ -183,13 +202,18 @@ export default function Home() {
     }
 
     loadInitialBoard();
+    // Context actions are recreated by the provider; this initialization should run once.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   return (
     <main className="flex min-h-screen h-screen bg-[#828FA3] flex-col">
 
       <div className="flex-1">
-        <Header onAddTask={() => setIsAddTaskOpen(true)} />
+        <Header
+          onAddTask={() => setIsAddTaskOpen(true)}
+          onDeleteBoard={() => setIsDeleteBoardOpen(true)}
+        />
       </div>
 
       <div>
@@ -204,6 +228,14 @@ export default function Home() {
             <AddNewBoardModal
               onClose={() => setIsAddBoardOpen(false)}
               onSubmit={handleCreateBoard}
+            />
+          )}
+
+          {isDeleteBoardOpen && board && (
+            <DeleteBoardModal
+              board={board}
+              onClose={() => setIsDeleteBoardOpen(false)}
+              onDelete={handleDeleteBoard}
             />
           )}
           
