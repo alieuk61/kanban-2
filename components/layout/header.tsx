@@ -6,10 +6,11 @@ import ellipsisIcon from "../../public/ellipsis.svg";
 
 type HeaderProps = {
     onAddTask: () => void;
+    onEditBoard: () => void;
     onDeleteBoard: () => void;
 };
 
-export default function Header({ onAddTask, onDeleteBoard }: HeaderProps) {
+export default function Header({ onAddTask, onEditBoard, onDeleteBoard }: HeaderProps) {
 
     const {board, columns} = useAppContext();
     const [isBoardMenuOpen, setIsBoardMenuOpen] = useState(false);
@@ -33,6 +34,16 @@ export default function Header({ onAddTask, onDeleteBoard }: HeaderProps) {
                     </button>
                     {isBoardMenuOpen && board && (
                         <div className="absolute right-0 top-12 z-40 w-48 rounded-md bg-white py-2 shadow-lg">
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    setIsBoardMenuOpen(false);
+                                    onEditBoard();
+                                }}
+                                className="w-full px-4 py-2 text-left text-gray-500 hover:bg-gray-100"
+                            >
+                                Edit Board
+                            </button>
                             <button
                                 type="button"
                                 onClick={() => {

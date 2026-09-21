@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { ApiError } from "@/lib/errors";
 import { getBoard } from "@/lib/boards/getBoards";
 import { deleteBoard } from "@/lib/boards/deleteBoard";
+import { dbQuery } from "@/lib/db";
 
 type Params = { 
     boardId: string
@@ -68,5 +69,35 @@ export async function DELETE(req: Request, context: { params: Promise<Params> })
         }
 
         return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    }
+}
+
+export async function PATCH(req: Request, context: { params: Promise<Params> }) {
+    try {
+        const { boardId } = await context.params;
+        const numericBoardId = Number(boardId);
+        const body = await req.json();
+        const name = typeof body.name === "string" ? body.name.trim() : "";
+
+        if (!Number.isInteger(numericBoardId) || numericBoardId <= 0 || !name) {
+            return NextResponse.json({ error: "A valid board and name are required" }, { status: 400 });
+        }
+
+        const result = await dbQuery(
+            `UPDATE boards
+             SET name = $1
+             WHERE id = $2
+             RETURNING id, name, created_at`,
+            [name, numericBoardId]
+        );
+
+        if (!result.rows[0]) {
+            return NextResponse.json({ error: "Board not found" }, { status: 404 });
+        }
+
+        return NextResponse.json({ ...result.rows[0], columns: [] }, { status: 200 });
+    } catch (error) {
+        console.error("Error updating board:", error);
+        return NextResponse.json({ error: "Failed to update board" }, { status: 500 });
     }
 }

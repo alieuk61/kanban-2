@@ -17,6 +17,7 @@ type AppContextValue = {
     getAllBoards: () => Promise<Board[]>;
     getBoard: (boardId: number) => Promise<void>;
     createBoard: (newBoard: Pick<Board, "name">) => Promise<Board>;
+    updateBoard: (boardId: number, name: string) => Promise<Board>;
     deleteBoard: (boardId: number) => Promise<void>;
     createColumn: (boardId: number, newColumn: Pick<Column, "name">) => Promise<Column>;
     deleteColumn: (boardId: number, columnId: number) => Promise<void>;
@@ -125,6 +126,11 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
         }
     };
 
+    const updateBoard = async (boardId: number, name: string): Promise<Board> => {
+        const response = await axios.patch(`/api/boards/${boardId}`, { name });
+        return response.data;
+    };
+
     const createTask = async (
         boardId: number,
         columnId: number,
@@ -221,7 +227,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
             chosenBoardId, setChosenBoardId,
             AllBoards, setAllBoards,
             getAllBoards, deleteBoard,
-            getBoard, createBoard,
+            getBoard, createBoard, updateBoard,
             createColumn, deleteColumn,
             getColumn,
             createTask, updateTask, moveTask, getSubtasksByTask, updateSubtaskCompletion,

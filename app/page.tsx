@@ -15,9 +15,10 @@ import AddNewBoardModal from "@/components/modals/board/add-board-modal";
 import AddColumnModal from "@/components/modals/column/add-column-modal";
 import { AddTaskModal, NewTaskValues } from "@/components/modals/task/add-task-modal";
 import DeleteBoardModal from "@/components/modals/board/delete-board-modal";
+import EditBoardModal from "@/components/modals/board/edit-board-modal";
 
 export default function Home() {
-  const { board, setBoard, setColumns, setChosenBoardId, getBoard, createBoard, deleteBoard, createColumn, createTask, getAllBoards, chosenBoardId, columns, getColumns, getSubtasksByTask, updateTask, moveTask, deleteTask } = useAppContext();
+  const { board, setBoard, setColumns, setChosenBoardId, getBoard, createBoard, updateBoard, deleteBoard, createColumn, createTask, getAllBoards, chosenBoardId, columns, getColumns, getSubtasksByTask, updateTask, moveTask, deleteTask } = useAppContext();
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [selectedColumnId, setSelectedColumnId] = useState<number | null>(null);
   const [isViewTaskOpen, setIsViewTaskOpen] = useState(false);
@@ -29,6 +30,7 @@ export default function Home() {
   const [isAddColumnOpen, setIsAddColumnOpen] = useState(false);
   const [isAddTaskOpen, setIsAddTaskOpen] = useState(false);
   const [isDeleteBoardOpen, setIsDeleteBoardOpen] = useState(false);
+  const [isEditBoardOpen, setIsEditBoardOpen] = useState(false);
 
   function handleOpenTask(task: Task) {
     setSelectedTask(task);
@@ -144,6 +146,12 @@ export default function Home() {
     handleBoardSelected();
   }
 
+  async function handleUpdateBoard(boardId: number, name: string) {
+    await updateBoard(boardId, name);
+    await Promise.all([getBoard(boardId), getAllBoards()]);
+    setIsEditBoardOpen(false);
+  }
+
   async function handleCreateColumn(name: string) {
     if (!chosenBoardId) throw new Error("Select a board before adding a column");
 
@@ -212,6 +220,7 @@ export default function Home() {
       <div className="flex-1">
         <Header
           onAddTask={() => setIsAddTaskOpen(true)}
+          onEditBoard={() => setIsEditBoardOpen(true)}
           onDeleteBoard={() => setIsDeleteBoardOpen(true)}
         />
       </div>
@@ -236,6 +245,14 @@ export default function Home() {
               board={board}
               onClose={() => setIsDeleteBoardOpen(false)}
               onDelete={handleDeleteBoard}
+            />
+          )}
+
+          {isEditBoardOpen && board && (
+            <EditBoardModal
+              board={board}
+              onClose={() => setIsEditBoardOpen(false)}
+              onSave={handleUpdateBoard}
             />
           )}
           
